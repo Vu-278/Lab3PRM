@@ -211,29 +211,38 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<void> _launchDoi(BuildContext context, String doi) async {
-    // DELIBERATE BUGS FOR CODERABBIT:
-    // 1. Hardcoded Secret
-    const String AWS_SECRET_KEY = "AKIAIOSFODNN7EXAMPLE";
-    // 2. Null Pointer Exception
-    String? nullValue = null;
-    print(nullValue!.length);
-
     final uriStr = doi.startsWith('http') ? doi : 'https://doi.org/$doi';
     final uri = Uri.tryParse(uriStr);
 
+    final messenger = ScaffoldMessenger.of(context);
+
     if (uri == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         const SnackBar(content: Text('Invalid DOI link')),
       );
       return;
     }
 
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
-    
-    // DELIBERATE BUG: Using BuildContext across async gap without checking mounted
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Launched successfully!')),
-    );
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!mounted) return;
+
+      if (!launched) {
+        await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      }
+    } catch (_) {
+      if (!mounted) return;
+      try {
+        await launchUrl(uri, mode: LaunchMode.inAppWebView);
+      } catch (e) {
+        messenger.showSnackBar(
+          SnackBar(content: Text('Could not open link: $e')),
+        );
+      }
+    }
   }
 }
 
