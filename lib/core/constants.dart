@@ -2,6 +2,7 @@
 library;
 
 class AppConstants {
+  // Private constructor to prevent instantiation of this constants class
   AppConstants._();
 
   static const String baseUrl = 'https://api.openalex.org';

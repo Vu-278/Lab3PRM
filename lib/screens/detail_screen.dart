@@ -211,11 +211,9 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<void> _launchDoi(BuildContext context, String doi) async {
-    // doi may already be a full URL or just the DOI string
     final uriStr = doi.startsWith('http') ? doi : 'https://doi.org/$doi';
     final uri = Uri.tryParse(uriStr);
 
-    // Capture messenger before any async gap
     final messenger = ScaffoldMessenger.of(context);
 
     if (uri == null) {
@@ -226,7 +224,6 @@ class _DetailScreenState extends State<DetailScreen> {
     }
 
     try {
-      // Try external browser first (real devices)
       final launched = await launchUrl(
         uri,
         mode: LaunchMode.externalApplication,
@@ -234,12 +231,10 @@ class _DetailScreenState extends State<DetailScreen> {
       if (!mounted) return;
 
       if (!launched) {
-        // Fallback: in-app WebView (works on emulators without a browser)
         await launchUrl(uri, mode: LaunchMode.inAppWebView);
       }
     } catch (_) {
       if (!mounted) return;
-      // Last resort fallback to in-app WebView
       try {
         await launchUrl(uri, mode: LaunchMode.inAppWebView);
       } catch (e) {

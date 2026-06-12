@@ -28,22 +28,36 @@ class SearchProvider extends ChangeNotifier {
   bool _hasMore = false;
   bool _isLoadingMore = false;
 
+  /// Trend analytics data by year.
   List<TrendPoint> _trendData = [];
+  /// List of journals with the most publications.
   List<JournalStat> _topJournals = [];
+  /// List of authors with the most publications.
   List<AuthorStat> _topAuthors = [];
 
   // ─── Getters ───────────────────────────────────────────────────────────────
 
+  /// The currently searched topic.
   String get currentTopic => _currentTopic;
+  /// The current status of the provider.
   SearchStatus get status => _status;
+  /// The last occurred error message.
   String get errorMessage => _errorMessage;
+  /// Unmodifiable list of loaded publications.
   List<Publication> get publications => List.unmodifiable(_publications);
+  /// Total matching publications available on the server.
   int get totalCount => _totalCount;
+  /// The current page being displayed.
   int get currentPage => _currentPage;
+  /// Whether more pages are available to be loaded.
   bool get hasMore => _hasMore;
+  /// Whether the provider is currently fetching more items.
   bool get isLoadingMore => _isLoadingMore;
+  /// Unmodifiable list of trend analytics.
   List<TrendPoint> get trendData => List.unmodifiable(_trendData);
+  /// Unmodifiable list of top journals.
   List<JournalStat> get topJournals => List.unmodifiable(_topJournals);
+  /// Unmodifiable list of top authors.
   List<AuthorStat> get topAuthors => List.unmodifiable(_topAuthors);
 
   // ─── Computed getters ──────────────────────────────────────────────────────
@@ -80,6 +94,10 @@ class SearchProvider extends ChangeNotifier {
   // ─── Methods ───────────────────────────────────────────────────────────────
 
   /// Search for [topic] and load both publications and analytics data in parallel.
+  /// Initiates a new search for the given [topic].
+  /// 
+  /// This method resets all existing state, pagination, and aggregated
+  /// statistics before making parallel API calls to fetch the new data.
   Future<void> search(String topic) async {
     _currentTopic = topic.trim();
     _status = SearchStatus.loading;
@@ -104,6 +122,10 @@ class SearchProvider extends ChangeNotifier {
   }
 
   /// Load the next page of publications (infinite scroll).
+  /// Loads the next page of publications for the current topic.
+  /// 
+  /// This is typically called by infinite scrolling UI components.
+  /// If data is already loading or no more pages are available, this does nothing.
   Future<void> loadMore() async {
     if (!_hasMore || _isLoadingMore || _status == SearchStatus.loading) return;
 
