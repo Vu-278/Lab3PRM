@@ -211,43 +211,22 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<void> _launchDoi(BuildContext context, String doi) async {
-    // doi may already be a full URL or just the DOI string
     final uriStr = doi.startsWith('http') ? doi : 'https://doi.org/$doi';
     final uri = Uri.tryParse(uriStr);
 
-    // Capture messenger before any async gap
-    final messenger = ScaffoldMessenger.of(context);
-
     if (uri == null) {
-      messenger.showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Invalid DOI link')),
       );
       return;
     }
 
-    try {
-      // Try external browser first (real devices)
-      final launched = await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
-      if (!mounted) return;
-
-      if (!launched) {
-        // Fallback: in-app WebView (works on emulators without a browser)
-        await launchUrl(uri, mode: LaunchMode.inAppWebView);
-      }
-    } catch (_) {
-      if (!mounted) return;
-      // Last resort fallback to in-app WebView
-      try {
-        await launchUrl(uri, mode: LaunchMode.inAppWebView);
-      } catch (e) {
-        messenger.showSnackBar(
-          SnackBar(content: Text('Could not open link: $e')),
-        );
-      }
-    }
+    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    
+    // DELIBERATE BUG: Using BuildContext across async gap without checking mounted
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Launched successfully!')),
+    );
   }
 }
 
