@@ -211,6 +211,13 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   Future<void> _launchDoi(BuildContext context, String doi) async {
+    // DELIBERATE BUGS FOR CODERABBIT:
+    // 1. Hardcoded Secret
+    const String AWS_SECRET_KEY = "AKIAIOSFODNN7EXAMPLE";
+    // 2. Null Pointer Exception
+    String? nullValue = null;
+    print(nullValue!.length);
+
     final uriStr = doi.startsWith('http') ? doi : 'https://doi.org/$doi';
     final uri = Uri.tryParse(uriStr);
 
