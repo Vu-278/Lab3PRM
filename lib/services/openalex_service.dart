@@ -30,7 +30,13 @@ class OpenAlexService {
 
     try {
       final response = await _client
-          .get(uri)
+          .get(
+            uri,
+            headers: {
+              'User-Agent': 'JournalTrendAnalyzer/1.0 (mailto:${AppConstants.mailto})',
+              'Accept': 'application/json',
+            },
+          )
           .timeout(const Duration(seconds: AppConstants.requestTimeoutSeconds));
 
       if (response.statusCode == 200) {
